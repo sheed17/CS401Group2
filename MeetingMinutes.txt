@@ -1,0 +1,9 @@
+October 1 
+6pm to 8:30
+2h 30min
+Cleaned up the SRS Document and created UML Diagrams (Class, Use case, Sequence)
+
+September 30
+9:00 pm to 11:36
+2h 36min
+Finished the main requirements for each of the main modules in the program.
