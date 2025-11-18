@@ -24,6 +24,7 @@ public class BlackjackServer
 		private Socket socket;
 		private boolean loggedIn = false;
 		private boolean connected;
+		private String status;
 		
 		// Test for password checking
 		private String username = "ThisIsMyUsername51";
@@ -42,45 +43,76 @@ public class BlackjackServer
 				connected = true;
 				
 				var inputStream = socket.getInputStream();
-				//var objectIn = new ObjectInputStream(inputStream);
+				var objectIn = new ObjectInputStream(inputStream);
 				// Normal and object input streams
-				
-				var scan = new Scanner(inputStream);
-				// test code to read strings from the client applications
-				
+						
 				var outputStream = socket.getOutputStream();
-				//var objectOut = new ObjectOutputStream(outputStream);
+				var objectOut = new ObjectOutputStream(outputStream);
 				// Normal and object output streams
-				
-				var stringSender = new PrintWriter(outputStream, true);
-				// test code to send strings to the client application
-				
+
 				System.out.println("Connection from:  " + socket);
 				// Print out that someone has connected and the socket info
 
 				while (connected)
 				{
-					stringSender.println("You are now connected to the server. Please log in.");
-					while (loggedIn == false)
+					BlackjackMessage message = (BlackjackMessage) objectIn.readObject();
+					if (message.getType() == MessageEnum.LOGIN)
 					{
-						String usernameInput = scan.nextLine().trim();
+						loggedIn = true;
+						status = "Success";
 						
-						String passwordInput = scan.nextLine().trim();
-						if (username.equals(usernameInput) && password.equals(passwordInput))
-						{
-							stringSender.println("You are now logged in");
-							loggedIn=true;
-							connected = false;
-						}
-						else
-							stringSender.println("Incorrect username and/or password.");
-					}	
+						BlackjackMessage login = new BlackjackMessage(MessageEnum.LOGIN, status, "You are now logged in");
+						objectOut.writeObject(login);
+						// This is how you write and send a message object to client application
+					}
+					if (message.getType() == MessageEnum.UPDATEBALANCE && loggedIn)
+					{
+						updateBalance(150);
+					}
+					else if (message.getType() == MessageEnum.VIEWPROFILE && loggedIn)
+					{
+						// viewProfile();
+						// Debating on whether to keep this or not. Showing the user their profile
+						// sounds like more of a GUI thing that simply extracts the information from 
+						// the data files and then displays it.
+					}
+					else if (message.getType() == MessageEnum.UPDATEPASSWORD && loggedIn)
+					{
+						updatePassword(message.getText());
+					}
+					else if (message.getType() == MessageEnum.UPDATEUSERNAME && loggedIn)
+					{
+						updateUsername(message.getText());
+					}
+					else if (message.getType() == MessageEnum.LOGOUT && loggedIn)
+					{
+						connected = false;
+						objectOut.writeObject(new BlackjackMessage(MessageEnum.LOGOUT, "success", "You are now logged out"));
+					}
+					
+				
 				}
 			}
-			catch (IOException e)
+			catch (ClassNotFoundException | IOException e)
 			{
 				// not sure what to put here.
 			}
 		}
+		
+		public void updateBalance(int amount)
+		{
+			
+		}
+		
+		public void updateUsername(String username)
+		{
+			
+		}
+		
+		public void updatePassword(String password)
+		{
+			
+		}
+		
 	}
 }
