@@ -1,3 +1,6 @@
 /BlackjackClient.class
 /BlackjackServer$clientHandler.class
 /BlackjackServer.class
+/BlackjackMessage.class
+/GameGUI.class
+/MessageEnum.class
