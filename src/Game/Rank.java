@@ -12,4 +12,12 @@ public enum Rank {
     Queen(10), 
     King(10), 
     Ace(1); 
+    
+    private final int value;
+    Rank(int value) {
+        this.value = value;
+    }
+    public int getValue() {
+        return value;
+    }
 }
