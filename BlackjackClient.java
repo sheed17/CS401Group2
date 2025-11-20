@@ -11,6 +11,10 @@ public class BlackjackClient
 		int portNumber;
 		boolean loggedIn = false;
 		
+		GameGUI newGUI = new GameGUI();
+		newGUI.logInGUI();
+		
+		/*
 		Scanner scan = new Scanner(System.in);
 		System.out.println("Enter the IP Address of the Server: ");
 		IPAddress = scan.nextLine().trim();
@@ -47,5 +51,6 @@ public class BlackjackClient
 				
 			}
 		}
+		*/
 	}
 }
