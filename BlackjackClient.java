@@ -4,53 +4,128 @@ import java.io.*;
 
 public class BlackjackClient
 {
+	private static boolean loggedIn = false;
+	private Socket socket;
+	private ObjectInputStream objectIn;
+	private ObjectOutputStream objectOut;
+
+	public BlackjackClient() throws IOException
+	{
+		this.socket = new Socket("localhost", 52904);
+		this.objectOut = new ObjectOutputStream(socket.getOutputStream());
+		objectOut.flush();
+		this.objectIn = new ObjectInputStream(socket.getInputStream());
+	}
+	
+	
 	public static void main(String[] args) throws IOException
 	{
-		String IPAddress;
-		// This is temporary
-		int portNumber;
-		boolean loggedIn = false;
+		Scanner userInput = new Scanner(System.in);
+		// Used for receiving command line user input
 		
-		GameGUI newGUI = new GameGUI();
-		newGUI.logInGUI();
+		BlackjackClient client = new BlackjackClient();
+		// Creates a new client object to be passed into the GUI (not needed for now)
+		// Might not be needed in general, commenting out for now as it messes with the method references
 		
-		/*
-		Scanner scan = new Scanner(System.in);
-		System.out.println("Enter the IP Address of the Server: ");
-		IPAddress = scan.nextLine().trim();
+		int logInChoice;
+		// used to determine if the user is returning or new and then calls the corresponding function
 		
-		System.out.println("Enter the port number of the server: ");
-		portNumber = scan.nextInt();
-		scan.nextLine();
+		//GameGUI newGUI = new GameGUI(client);
 		
-		try (Socket socket = new Socket(IPAddress, portNumber))
+		do 
 		{
-			var input = new Scanner(socket.getInputStream());
-			var output = new PrintWriter(socket.getOutputStream(), true);
-			System.out.println(input.nextLine());
-
-			// Test for logging into the server;
-			while (loggedIn == false)
-			{
-				System.out.println("Input username: ");
-				String username = scan.nextLine().trim();
-				output.println(username);
+			System.out.println("Welcome to the Blackjack Game!"
+					+ "\nEnter 1 to log in or 2 to register a new account");
+			logInChoice = userInput.nextInt();
+			userInput.nextLine();
 		
-				System.out.println("Enter your password: ");
-				String password = scan.nextLine().trim();
-				output.println(password);
+		} while (logInChoice != 1 && logInChoice != 2);
+		
+		switch (logInChoice)
+		{
+			case 1: client.logIn(userInput); break;
+			case 2: client.createNewUser(userInput); break;
+		}
+		client.mainMenu();
+	}
+	
+	public synchronized void send(BlackjackMessage message)
+	{
+		try
+		{
+			objectOut.writeObject(message);
+			objectOut.flush();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public synchronized BlackjackMessage receive()
+	{
+		try {
+            return (BlackjackMessage) objectIn.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+	
+	public void logIn(Scanner userInput)
+	{
+		while (!loggedIn)
+		{
+			System.out.println("Enter your username");
+			String username = userInput.nextLine();
 			
-				String serverMessage = input.nextLine().trim();
-				if (serverMessage.contains("You are now logged in"))
+			System.out.println("Enter your password");
+			String password = userInput.nextLine();
+			
+			send(new BlackjackMessage(MessageEnum.LOGIN,username,password));
+			
+			BlackjackMessage message = receive();
+			if (message.getStatus().equals("Success"))
+				loggedIn=true;
+			System.out.println(message.getText());
+		}
+	}
+	
+	public void createNewUser(Scanner userInput)
+	{
+		while (!loggedIn)
+		{
+			System.out.println("Enter your username");
+			String username = userInput.nextLine();
+			
+			System.out.println("Enter your password");
+			String password = userInput.nextLine();
+			
+			System.out.println("You entered: \nUsername: " + username + "\nPassword: " + password + "\nIs this okay? (Y/N)");
+			String confirmation = userInput.nextLine().trim();
+			
+			if (confirmation.equalsIgnoreCase("Y"))
+			{
+				send(new BlackjackMessage(MessageEnum.NEWUSER,username,password));
+				BlackjackMessage serverResponse = receive();
+				if (serverResponse.getStatus().equals("Success"))
 				{
-					System.out.println(serverMessage);
 					loggedIn = true;
 				}
-				else 
-					System.out.println(serverMessage);
-				
+				System.out.println(serverResponse.getText());
 			}
+			
 		}
-		*/
+		// Luis' idea: User enters username and password. Gets asked for confirmation since its a new account. If
+		// the user is sure of their details, a message is sent to the server with the details. Not implemented yet, but the server
+		// should search the user data files and make sure the username is unique before registering their details. If its unique, 
+		// server returns a message saying that they've been registered successfully, otherwise a message is sent back saying that they
+		// gotta choose a different username. 
+	}
+	
+	public void mainMenu()
+	{
+		
 	}
 }

@@ -3,8 +3,12 @@ import java.io.Serializable;
 public class BlackjackMessage implements Serializable
 {
 	protected MessageEnum type;
+	
 	protected String status;
-	// not sure if status is necessary for the blackjack project
+	// Status will be used as an additional text field for messages such as
+	// add new user and log in which require two String variables for username and password.
+	// In those cases, status will contain the username, while text has the password.
+	
 	protected String text;
 	
 	public BlackjackMessage(MessageEnum type, String status, String text)
@@ -22,5 +26,10 @@ public class BlackjackMessage implements Serializable
 	public String getText()
 	{
 		return text;
+	}
+	
+	public String getStatus()
+	{
+		return status;
 	}
 }
