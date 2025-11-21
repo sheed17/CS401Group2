@@ -1,5 +1,6 @@
 public enum MessageEnum
 {
+	NEWUSER, // Used to register a new user account 
 	LOGIN, // Server will validate user credentials and log the person in or tell them credentials are wrong
 	LOGOUT, // Server will sign the user out of the system. Only works if the user is logged in beforehand.
 	VIEWPROFILE, // Server will return the user's information which will be displayed via the GUI
