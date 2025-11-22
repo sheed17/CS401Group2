@@ -63,7 +63,6 @@ public class BlackjackServer
 					{
 						if (searchUser(message.getStatus(),message.getText(),MessageEnum.LOGIN) != -1)
 						{
-							addNewUser(message.getStatus(), message.getText());
 							loggedIn = true;
 							objectOut.writeObject(new BlackjackMessage(MessageEnum.LOGIN,"Success","You are now logged in"));
 						}
@@ -84,27 +83,36 @@ public class BlackjackServer
 					}
 					if (message.getType() == MessageEnum.UPDATEBALANCE && loggedIn)
 					{
-						updateBalance(150, userIndex);
+						if (message.getStatus().equals("add"))
+							updateBalance(Integer.parseInt(message.getText()), "add", userIndex);
+						else 
+							updateBalance(Integer.parseInt(message.getText()), "subtract", userIndex);
+						
+						objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEBALANCE, "Success", "User Balance has been updated.\nBalance: " + getBalance()));
 					}
 					else if (message.getType() == MessageEnum.VIEWPROFILE && loggedIn)
 					{
-						// viewProfile();
-						// Debating on whether to keep this or not. Showing the user their profile
-						// sounds like more of a GUI thing that simply extracts the information from 
-						// the data files and then displays it.
+						objectOut.writeObject(new BlackjackMessage(MessageEnum.VIEWPROFILE, "Success", userData.get(userIndex)));
+						// Not sure how this will work honestly, current idea is that the server simply returns the string 
+						// with the user data and then the GUI will split it using comma and display each field in a JPanel.
 					}
 					else if (message.getType() == MessageEnum.UPDATEPASSWORD && loggedIn)
 					{
 						updatePassword(message.getText(), userIndex);
+						objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEPASSWORD, "Success", "Password has been updated."));
+						// Simply calls updatepassword with the new password and then sends a message back to the client notifying them that it is updated.
 					}
 					else if (message.getType() == MessageEnum.UPDATEUSERNAME && loggedIn)
 					{
 						updateUsername(message.getText(), userIndex);
+						objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEUSERNAME, "Success", "Username has been updated."));
+						// calls updateUsername with the new username and then sends a message back to the client notifying them that it has been updated. 
 					}
 					else if (message.getType() == MessageEnum.LOGOUT && loggedIn)
 					{
 						connected = false;
 						objectOut.writeObject(new BlackjackMessage(MessageEnum.LOGOUT, "success", "You are now logged out"));
+						// This may need more functionality i'm not really sure what else i'd add though
 					}
 					
 				
@@ -116,20 +124,16 @@ public class BlackjackServer
 			}
 		}
 		
-		
-		// This method will read from the userData.text file and save every line within it into an arrayList
-		// This arrayList will be used for searching through usernames, passwords, etc,
-		
 		public void addNewUser(String username, String password)
 		{
 			String newUser = username + "," + password + ",50";			
-			// The three fields for user info are username, password and their balance. 
-			// In this case, the default balance for new users will be 50 but in the end,
-			// this is just a placeholder.
 			userData.add(newUser);
 			userIndex = userData.size()-1;
 			saveUserData();
 		}
+		// Takes the username and password plus a default balance of 50 and creates a newUser string which is then added to the userData array list.
+		// This string is in the format username,password,balance which tracks with the format in userData.txt and this is for easy string splitting and reading. 
+		// the userIndex is also initialized to the size of the userData array list minus 1 for future reference.
 		
 		public int searchUser(String username, String password, MessageEnum purpose)
 		{
@@ -137,18 +141,18 @@ public class BlackjackServer
 			{
 				for (int index = 0; index < userData.size(); index++)
 				{
-					System.out.println(userData.get(index));
 					String[] userInfo = userData.get(index).split(",");
 					if (userInfo[0].equals(username) && userInfo[1].equals(password))
 					{
+						userIndex = index;
 						return index;
 					}
 				}
 				return -1;
-				// Iterates through the user Data array list and only returns true if there exists an index that contains the corresponding username and password
-				// Otherwise, if the for loop iterates through the entire array list without finding the corresponding info, then failure is returned as it means one of the fields was wrong 
+				// Iterates through the user Data array list and only returns the index if there exists an index that contains the corresponding username and password
+				// Otherwise, if the for loop iterates through the entire array list without finding the corresponding info, then -1 is returned as it means one of the fields was wrong 
 			}
-			// If this is used to log in then both the username and password must be validated, and so this branch only returns success 
+			// If this is used to log in then both the username and password must be validated, and so this branch only returns a proper index
 			// when both the username and password are correct.
 			else if (purpose == MessageEnum.NEWUSER)
 			{
@@ -162,28 +166,62 @@ public class BlackjackServer
 				}
 				return 0;
 				// Iterates through the user data array list comparing the username at each index with that of the argument. If the same username is found then it returns 
-				// "failure" indicating that it is not a unique username;
+				// -1 indicating that it is not a unique username;
 			}
 			return -1;		
 		}
 
 		
-		public void updateBalance(int amount, int userIndex)
+		public void updateBalance(int amount, String operation, int userIndex)
 		{
+			String[] userInfo = userData.get(userIndex).split(",");
+			// Grabs the user data from the arrayList and splits the string into the three data fields
+			int userBalance = Integer.parseInt(userInfo[2]);
+			//Index 2 corresponds to the user balance since the format is username, password, and then balance
+			if (operation.equalsIgnoreCase("add"))
+				userBalance += amount;
+			else
+				userBalance -= amount;
+			// Depending on the operation argument, the server will either add the balance or subtract it 
 			
+			userInfo[2] = Integer.toString(userBalance);
+			// replace index 2 of the user info with the updated balance
+			String userInfoString = userInfo[0] + "," + userInfo[1] + "," + userInfo[2];
+			// Assemble the user info string with the new information
+			userData.set(userIndex, userInfoString);
+			saveUserData();
+			// Set the updated userInfo string into the index it was grabbed from. 
 		}
-		// This method will update the user's balance upon the completion of a round of blackjack
 		
 		
 		public void updateUsername(String username, int userIndex)
 		{
-			
+			String[] userInfo = userData.get(userIndex).split(",");
+			userInfo[0] = username;
+			String userInfoString = userInfo[0] + "," + userInfo[1] + "," + userInfo[2];
+			userData.set(userIndex, userInfoString);
+			saveUserData();
 		}
+		// replaces the username field in userData with the new username and then saves it back to userData array list
+		// before calling saveUserData() to write it to the UserData file.
 		
 		public void updatePassword(String password, int userIndex)
 		{
-			
+			String[] userInfo = userData.get(userIndex).split(",");
+			userInfo[1] = password;
+			String userInfoString = userInfo[0] + "," + userInfo[1] + "," + userInfo[2];
+			userData.set(userIndex, userInfoString);
+			saveUserData();
 		}
+		// replaces the password field in userData with the new password and then saves it back to userData array list
+		// before calling saveUserData() to write it to the UserData file.
+		
+		public String getBalance()
+		{
+			String[] userInfo = userData.get(userIndex).split(",");
+			return userInfo[2];
+		}
+		// Used for the updateBalance method 
 		
 	}
 	
@@ -211,6 +249,8 @@ public class BlackjackServer
 			System.out.println("File was not found.");
 		} // this works leave it alone 
 	}
+	// This method will read from the userData.text file and save every line within it into an arrayList
+	// This arrayList will be used for searching through usernames, passwords, etc,
 	
 	public static void saveUserData()
 	{
@@ -231,4 +271,6 @@ public class BlackjackServer
 			e.printStackTrace();
 		}
 	}
+	// Method used for simply grabbing every string from the userData array list and then saving it to a string which is then
+	// written back into UserData.txt for safe keeping
 }
