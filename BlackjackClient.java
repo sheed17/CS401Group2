@@ -126,6 +126,8 @@ public class BlackjackClient
 	
 	public void mainMenu()
 	{
-		
+		send(new BlackjackMessage(MessageEnum.UPDATEBALANCE,"add", Integer.toString(150)));
+		BlackjackMessage serverResponse = receive();
+		System.out.println(serverResponse.getText());
 	}
 }
