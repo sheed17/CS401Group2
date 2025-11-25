@@ -40,5 +40,31 @@ public class Shoe {
         this.cardsRemaining = cards.size(); // Reset card count to 312
         
     }
+        // Dealing a card from the shoe
+    public Card dealCard() {
+        if (cardsRemaining <= 0) {
+            shuffleDecks(); // Reshuffle if empty
+        }
+        
+        Card dealtCard = cards.remove(cardsRemaining - 1);
+        cardsRemaining--;
+        
+        // Check if we need to reshuffle due to reaching threshold
+        if (cardsRemaining <= shuffleThreshold) {
+            System.out.println("Shuffle threshold reached. Reshuffling...");
+            shuffleDecks();
+        }
+        
+        return dealtCard;
+    }
+    
+    public int getCardsRemaining() {
+        return cardsRemaining;
+    }
+
+    // Shuffle threshold (for testing/debugging)
+    public int getShuffleThreshold() {
+        return shuffleThreshold;
+    }
 
 }
