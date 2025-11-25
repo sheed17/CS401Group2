@@ -1,5 +1,8 @@
 import java.net.*;
 import java.util.*;
+
+import javax.swing.JOptionPane;
+
 import java.io.*;
 
 public class BlackjackClient
@@ -126,8 +129,50 @@ public class BlackjackClient
 	
 	public void mainMenu()
 	{
-		send(new BlackjackMessage(MessageEnum.UPDATEBALANCE,"add", Integer.toString(150)));
+		while (loggedIn)
+		{
+			String[] commands = {"Update Balance",
+					"View Tables",
+				 	"Log Out"};
+		 
+			int choice;
+			Scanner scan = new Scanner(System.in);
+		 
+			do 
+			{
+				System.out.println("Welcome to the main menu. Please select an option. (1-" + commands.length + ")");
+				for (int i = 0; i < commands.length; i++)
+				{
+					System.out.println(i+1 + ": " + commands[i]);
+				}
+				choice = scan.nextInt() - 1;
+				scan.nextLine();
+		 
+				switch (choice) 
+				{
+					case 0: updateBalance(); break;
+					case 1: displayTables(); break;
+					case 2: break;
+					default:  // do nothing
+				}
+			 
+			} while (choice != commands.length-1);
+			System.exit(0);
+			// Menu from the professor 
+		}
+	}
+	
+	public void updateBalance()
+	{
+		send(new BlackjackMessage(MessageEnum.UPDATEBALANCE, "add", "150"));
 		BlackjackMessage serverResponse = receive();
 		System.out.println(serverResponse.getText());
+		// Basic example of sending a message from the client to the server
+	}
+	
+	public void displayTables()
+	{
+		System.out.println("These are the tables (No they're not)");
+		// Needs actual GUI Implementation
 	}
 }
