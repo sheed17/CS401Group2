@@ -37,23 +37,69 @@ public class Player {
 	
 	public void leaveTable() {
 		// waiting for table class
-		
+		this.handSize = 0;
+        for (int i = 0; i < hand.length; i++) {
+            hand[i] = null;
+        }
+        this.currentBet = 0;
+        this.totalCardValue = 0;
 	}
 	
 	public int bet(int money) {
 		
+		if (money <= 0) {
+            return 0;
+        }
+        if (money > balance) {
+        	return 0;
+        }
+        balance = balance - money;
+        currentBet = currentBet + money;
+        return money;
+        
 	}
 	
-	public void hit() {
+	public void hit(Shoe shoe) {
 		
+		Card newCard = shoe.dealCard();
+	    hand[handSize++] = newCard;
+	    
+	    int total = 0;
+	    int aces = 0;
+
+	    for (int i = 0; i < handSize; i++) {
+	        Card c = hand[i];
+	        if (c == null) {
+	        	continue;
+	        }
+	        total = total + c.getCardValue();
+	        if (c.getRank() == Rank.Ace) {
+	            aces = aces +1;
+	        }
+	    }
+
+	    while (aces > 0 && total + 10 <= 21) {
+	        total += 10;
+	        aces = aces -1;
+	    }
+
+	    this.totalCardValue = total;
+	    
 	}
 	
-	public void stand() {
-		
+	public int stand() {
+		return this.totalCardValue;
 	}
 	
-	public void doubleDown(int bet) {
+	public void doubleDown(int bet, Shoe shoe) {
 		
+		int placed = bet(bet); 
+        if (placed > 0) {
+            hit(shoe);        
+            stand();   
+        } else {
+            break;
+        }
 	}
 	
 	public void split() {
