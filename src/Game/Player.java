@@ -74,7 +74,12 @@ public class Player {
 
 	
 	public void logout() {
-		//missing 
+		// real logic of the logout is in the client-server part, in here im only
+		// resetting the stuff to 0
+		this.balance = 0;
+	    this.totalCardValue = 0;
+	    this.currentBet = 0;
+	    this.handSize = 0;
 	}
 	
 	public void joinTable(Table table) {
