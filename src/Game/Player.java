@@ -4,14 +4,20 @@ import java.util.Scanner;
 public class Player {
 	
 	private int userId;
-	private int count = 0;
+	private static int count = 0;
 	private String username;
 	private String password;
 	private int balance;
 	private int totalCardValue;
-	private Card[] hand;
+	// put 12 because mathematically there is no way that with more than 11 you can
+	// still stand and with the 12 you bust
+	private Card[][] hands = new Card[4][12];
+	private int[] handBets = new int[4];
+	private int numHands = 1;
 	private int currentBet;
-	private int handSize = 0;
+	private int activeHandIndex = 0;
+	private int[] handSizes = new int[4];
+	private int[] handTotals = new int[4];
 	
 	Player(String username, String password){
 		this.userId = count++;
@@ -79,7 +85,17 @@ public class Player {
 		this.balance = 0;
 	    this.totalCardValue = 0;
 	    this.currentBet = 0;
-	    this.handSize = 0;
+	    
+	    for (int i = 0; i < hands.length; i++) {
+            handSizes[i] = 0;
+            handBets[i] = 0;
+            handTotals[i] = 0;
+            for (int j = 0; j < hands[i].length; j++) {
+                hands[i][j] = null;
+            }
+        }
+        numHands = 1;
+        activeHandIndex = 0;
 	}
 	
 	public void joinTable(Table table) {
@@ -89,10 +105,17 @@ public class Player {
 	
 	public void leaveTable() {
 		// waiting for table class
-		this.handSize = 0;
-        for (int i = 0; i < hand.length; i++) {
-            hand[i] = null;
+		// resetting all to 0, similar as logout
+		for (int i = 0; i < hands.length; i++) {
+            handSizes[i] = 0;
+            handBets[i] = 0;
+            handTotals[i] = 0;
+            for (int j = 0; j < hands[i].length; j++) {
+                hands[i][j] = null;
+            }
         }
+        numHands = 1;
+        activeHandIndex = 0;
         this.currentBet = 0;
         this.totalCardValue = 0;
 	}
@@ -107,40 +130,50 @@ public class Player {
         }
         balance = balance - money;
         currentBet = currentBet + money;
+        handBets[activeHandIndex] = handBets[activeHandIndex] + money;
         return money;
         
 	}
 	
 	public void hit(Shoe shoe) {
 		
-		Card newCard = shoe.dealCard();
-	    hand[handSize++] = newCard;
-	    
-	    int total = 0;
-	    int aces = 0;
+		int handSize = handSizes[activeHandIndex];
 
-	    for (int i = 0; i < handSize; i++) {
-	        Card c = hand[i];
-	        if (c == null) {
-	        	continue;
-	        }
-	        total = total + c.getCardValue();
-	        if (c.getRank() == Rank.Ace) {
-	            aces = aces +1;
-	        }
-	    }
+        if (handSize >= hands[activeHandIndex].length) {
+            // hand full, cannot hit
+            return;
+        }
 
-	    while (aces > 0 && total + 10 <= 21) {
-	        total += 10;
-	        aces = aces -1;
-	    }
+        Card newCard = shoe.dealCard();
+        hands[activeHandIndex][handSize] = newCard;
+        handSizes[activeHandIndex] = handSize + 1;
 
-	    this.totalCardValue = total;
+        // recheck total for this hand
+        int total = 0;
+        int aces = 0;
+
+        for (int i = 0; i < handSizes[activeHandIndex]; i++) {
+            Card c = hands[activeHandIndex][i];
+            if (c == null) continue;
+
+            total += c.getCardValue(); 
+            if (c.getRank() == Rank.Ace) {
+                aces = aces + 1;
+            }
+        }
+
+        while (aces > 0 && total + 10 <= 21) {
+            total = total + 10;
+            aces = aces - 1;
+        }
+
+        handTotals[activeHandIndex] = total;
+        this.totalCardValue = total; 
 	    
 	}
 	
 	public int stand() {
-		return this.totalCardValue;
+		return handTotals[activeHandIndex];
 	}
 	
 	public void doubleDown(int bet, Shoe shoe) {
@@ -148,15 +181,95 @@ public class Player {
 		int placed = bet(bet); 
         if (placed > 0) {
             hit(shoe);        
-            stand();   
         } else {
-            break;
+            // message of not enough balance or smth like that
         }
 	}
 	
-	public void split() {
-		//missing 
+	public void split(Shoe shoe) {
+		// max hands
+        if (numHands >= 4) {
+            return;
+        }
+        // cannot split with other number of cards different to 2
+        if (handSizes[activeHandIndex] != 2) {
+            return;
+        }
+
+        Card first = hands[activeHandIndex][0];
+        Card second = hands[activeHandIndex][1];
+
+        if (first == null || second == null) {
+            return;
+        }
+
+        if (first.getRank() != second.getRank()) {
+            return; 
+        }
+
+        // not enough money 
+        int betForHand = handBets[activeHandIndex];
+        if (betForHand <= 0 || balance < betForHand) {
+            return; 
+        }
+        balance = balance - betForHand;
+        currentBet = currentBet - betForHand;
+
+        int newIndex = numHands;
+        numHands++;
+
+        hands[newIndex][0] = second;
+        handSizes[newIndex] = 1;
+
+        hands[activeHandIndex][1] = null;
+        handSizes[activeHandIndex] = 1;
+        handBets[newIndex] = betForHand;
+
+        // dealing the next cards
+        if (handSizes[activeHandIndex] < hands[activeHandIndex].length) {
+            Card c1 = shoe.dealCard();
+            hands[activeHandIndex][handSizes[activeHandIndex] + 1] = c1;
+        }
+        int total1 = 0;
+        int aces1 = 0;
+        for (int i = 0; i < handSizes[activeHandIndex]; i++) {
+            Card c = hands[activeHandIndex][i];
+            if (c == null) {
+            	continue;
+            }
+            total1 += c.getCardValue();
+            if (c.getRank() == Rank.Ace) aces1++;
+        }
+        while (aces1 > 0 && total1 + 10 <= 21) {
+            total1 = total1 + 10;
+            aces1 = aces1 - 1;
+        }
+        handTotals[activeHandIndex] = total1;
+        this.totalCardValue = total1;
+
+        // new split hand
+        if (handSizes[newIndex] < hands[newIndex].length) {
+            Card c2 = shoe.dealCard();
+            hands[newIndex][handSizes[newIndex]++] = c2;
+        }
+        int total2 = 0;
+        int aces2 = 0;
+        for (int i = 0; i < handSizes[newIndex]; i++) {
+            Card c = hands[newIndex][i];
+            if (c == null) continue;
+            total2 += c.getCardValue();
+            if (c.getRank() == Rank.Ace) {
+            	aces2 = aces2 + 1;
+            }
+        }
+        while (aces2 > 0 && total2 + 10 <= 21) {
+        	total2 = total2 + 10;
+        	aces2 = aces2 - 1;
+        }
+        handTotals[newIndex] = total2;
+
 	}
+
 	
 	public int getUserId() {
 		return this.userId;
@@ -176,6 +289,14 @@ public class Player {
 	
 	public int getCurrentBet() {
 		return this.currentBet;
+	}
+	
+	public int getNumHands() {
+		return this.numHands;
+	}
+	
+	public void setNumHands(int numHands) {
+		this.numHands = numHands;
 	}
 	
 	public void setUsername(String username) {
@@ -200,7 +321,7 @@ public class Player {
 	
 	@Override
 	public String toString() {
-	    return "Player ID: " + userId + ", Username: " + username + ", Balance: " + balance + ", Total Value: " + totalCardValue + ", Hand Size: " + handSize;
+	    return "Player ID: " + userId + ", Username: " + username + ", Balance: " + balance + ", Active Hand Value: " + totalCardValue + ", Num Hands: " + numHands;
 	}
 
 }
