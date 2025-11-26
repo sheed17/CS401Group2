@@ -146,4 +146,9 @@ public class Player {
 		this.currentBet = currentBet;
 	}
 	
+	@Override
+	public String toString() {
+	    return "Player ID: " + userId + ", Username: " + username + ", Balance: " + balance + ", Total Value: " + totalCardValue + ", Hand Size: " + handSize;
+	}
+
 }
