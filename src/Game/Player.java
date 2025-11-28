@@ -18,6 +18,7 @@ public class Player {
 	private int activeHandIndex = 0;
 	private int[] handSizes = new int[4];
 	private int[] handTotals = new int[4];
+	private Table currentTable;
 	
 	Player(String username, String password){
 		this.userId = count++;
@@ -99,12 +100,41 @@ public class Player {
 	}
 	
 	public void joinTable(Table table) {
-		// waiting for table class
+		if (table == null) {
+	        return;
+	    }
+
+	    // leave another table before joining another one
+	    if (currentTable != null && currentTable != table) {
+	        currentTable.removePlayer(this);
+	    }
+
+	    boolean joined = table.addPlayer(this);
+	    if (joined) {
+	        currentTable = table;
+	        // resetting stats
+	        for (int i = 0; i < hands.length; i++) {
+	            handSizes[i] = 0;
+	            handBets[i] = 0;
+	            handTotals[i] = 0;
+	            for (int j = 0; j < hands[i].length; j++) {
+	                hands[i][j] = null;
+	            }
+	        }
+	        numHands = 1;
+	        activeHandIndex = 0;
+	        currentBet = 0;
+	        totalCardValue = 0;
+	    }
 		
 	}
 	
 	public void leaveTable() {
-		// waiting for table class
+		if (currentTable != null) {
+	        currentTable.removePlayer(this);
+	        currentTable = null;
+	    }
+	    
 		// resetting all to 0, similar as logout
 		for (int i = 0; i < hands.length; i++) {
             handSizes[i] = 0;
