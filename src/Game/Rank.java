@@ -1,3 +1,4 @@
+package src.Game;
 public enum Rank {
     Two(2), 
     Three(3), 
