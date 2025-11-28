@@ -1,3 +1,4 @@
+package src.Game;
 import java.util.Arrays;
 
 public class Table {
