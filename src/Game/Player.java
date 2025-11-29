@@ -87,7 +87,49 @@ public class Player {
 	
 	public void logout() {
 		// real logic of the logout is in the client-server part, in here im only
-		// resetting the stuff to 0
+		// resetting the stuff to 0 and updating the balance in the txt file
+		
+		File file = new File("users.txt");
+	    if (!file.exists()) {
+	        return;
+	    }
+
+	    try {
+	        Scanner scanner = new Scanner(file);
+	        StringBuilder sb = new StringBuilder();
+
+	        while (scanner.hasNextLine()) {
+	            String line = scanner.nextLine().trim();
+
+	            if (line.isEmpty()) {
+	                sb.append("\n");
+	                continue;
+	            }
+	            String[] parts = line.split(",");
+	            if (parts.length != 3) {
+	                sb.append(line).append("\n");
+	                continue;
+	            }
+	            String fileUser = parts[0].trim();
+	            String filePass = parts[1].trim();
+
+	            // if it finds the user, it needs to update the balance
+	            if (fileUser.equals(this.username) && filePass.equals(this.password)) {
+	                sb.append(fileUser).append(",").append(filePass).append(",").append(this.balance).append("\n");
+	            } else {
+	                sb.append(line).append("\n");
+	            }
+	        }
+	        scanner.close();
+
+	        java.io.FileWriter fileUpdated = new java.io.FileWriter(file, false); 
+	        fileUpdated.write(sb.toString());
+	        fileUpdated.close();
+
+	    } catch (Exception e) {
+	        // error updating the txt file
+	    }
+	    
 		this.balance = 0;
 	    this.totalCardValue = 0;
 	    this.currentBet = 0;
