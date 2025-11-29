@@ -1,7 +1,8 @@
+package src.Client;
 import java.net.*;
 import java.util.*;
-
 import javax.swing.JOptionPane;
+import src.GUI.GameGUI;
 
 import java.io.*;
 
