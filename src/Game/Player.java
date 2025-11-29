@@ -30,14 +30,14 @@ public class Player {
         this.currentBet = 0;
 	}
 	
-	public void logIn(String u, String p) {
+	public boolean logIn(String u, String p) {
 	//CHANGE FILE NAME WHEN WE DEFINE THAT	
 	// I ASSUMED THAT THE FILE HAS THIS FORMAT
 	// USER,PASSWORD,BALANCE
 		File file = new File("UserData.txt");   
 		
 		if (file.exists() == false) {
-		    return;
+		    return false;
 		}
 		
 		boolean found = false;
@@ -74,14 +74,19 @@ public class Player {
 		    }
 		    scanner.close();
 		} catch (Exception e) {
-			//ONLY TO TEST, WE NEED TO GET RID OF THIS LATER 
-		    System.out.println("ERROR WHILE READING FILE");
+			//error reading the file
+		    return false;
 		}
 		
-		if (!found) {
+		if (found == false) {
 		    // incorrect credentials
-			
+			this.username = null;
+	        this.password = null;
+	        this.balance = 0;
+			return false;
 		}
+		
+		return true;
 	}
 
 	
