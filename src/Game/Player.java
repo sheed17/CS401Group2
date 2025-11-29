@@ -34,7 +34,7 @@ public class Player {
 	//CHANGE FILE NAME WHEN WE DEFINE THAT	
 	// I ASSUMED THAT THE FILE HAS THIS FORMAT
 	// USER,PASSWORD,BALANCE
-		File file = new File("users.txt");   
+		File file = new File("UserData.txt");   
 		
 		if (file.exists() == false) {
 		    return;
@@ -89,7 +89,7 @@ public class Player {
 		// real logic of the logout is in the client-server part, in here im only
 		// resetting the stuff to 0 and updating the balance in the txt file
 		
-		File file = new File("users.txt");
+		File file = new File("UserData.txt");
 	    if (!file.exists()) {
 	        return;
 	    }
