@@ -1,3 +1,4 @@
+package src.Server;
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.Executors;
@@ -274,3 +275,4 @@ public class BlackjackServer
 	// Method used for simply grabbing every string from the userData array list and then saving it to a string which is then
 	// written back into UserData.txt for safe keeping
 }
+
