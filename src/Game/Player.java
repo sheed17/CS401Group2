@@ -33,7 +33,7 @@ public class Player {
 	public void logIn(String u, String p) {
 	//CHANGE FILE NAME WHEN WE DEFINE THAT	
 	// I ASSUMED THAT THE FILE HAS THIS FORMAT
-	// USER,PASSWORD
+	// USER,PASSWORD,BALANCE
 		File file = new File("users.txt");   
 		
 		if (file.exists() == false) {
@@ -51,12 +51,14 @@ public class Player {
 		        }
 		
 		        String[] userData = line.split(",");
-		        if (userData.length != 2) {
+		        if (userData.length != 3) {
 		            break;
 		        }
 		
 		        String fileUser = userData[0].trim();
 		        String filePass = userData[1].trim();
+		        String fileBalance = userData[2].trim();
+		        int fB = Integer.parseInt(fileBalance);
 		
 		        if (fileUser.isBlank() || filePass.isBlank()) {
 		            break;
@@ -65,6 +67,7 @@ public class Player {
 		        if (u.equals(fileUser) && p.equals(filePass)) {
 		            this.username = fileUser;
 		            this.password = filePass;
+		            this.balance = fB;
 		            found = true;
 		            break;
 		        }
