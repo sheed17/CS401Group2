@@ -162,9 +162,12 @@ public class GameGUI
 	
 	public void viewProfile()
 	{
-		JOptionPane.showMessageDialog(null, "You have pressed View Profile", 
-				"Main Menu", 
-				JOptionPane.INFORMATION_MESSAGE);
+		String userData = client.viewProfile();
+		String[] userInfo = userData.split(",");
+		
+		String userDetails = "Username: " + userInfo[0] + "\nPassword: " + userInfo[1] + 
+  				"\nBalance: " + userInfo[2];
+		JOptionPane.showMessageDialog(null, userDetails);
 	}
 	
 	public void viewTables()

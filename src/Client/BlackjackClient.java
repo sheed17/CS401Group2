@@ -68,7 +68,6 @@ public class BlackjackClient
 			loggedIn=true;
 		return message.getStatus();
 	}
-	// GUI version of logIn() method
 		
 	public String createNewUser(String username, String password)
 	{
@@ -78,7 +77,13 @@ public class BlackjackClient
 			loggedIn = true;
 		return message.getStatus();
 	}
-	// GUI version of CreateNewUser() method	
+	
+	public String viewProfile()
+	{
+		send(new BlackjackMessage(MessageEnum.VIEWPROFILE, "null", "null"));
+		BlackjackMessage serverResponse = receive();
+		return serverResponse.getText();
+	}
 		
 	public void updateBalance()
 	{

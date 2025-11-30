@@ -76,6 +76,7 @@ public class BlackjackServer
 						if (searchUser(message.getStatus(),message.getText(),MessageEnum.NEWUSER) != -1)
 						{
 							addNewUser(message.getStatus(), message.getText());
+							loggedIn = true;
 							objectOut.writeObject(new BlackjackMessage(MessageEnum.NEWUSER, "Success", "Successfully registered User."));
 						}
 						else 
@@ -127,7 +128,7 @@ public class BlackjackServer
 		
 		public void addNewUser(String username, String password)
 		{
-			String newUser = username + "," + password + ",50";			
+			String newUser = username + "," + password + ",50";		
 			userData.add(newUser);
 			userIndex = userData.size()-1;
 			saveUserData();

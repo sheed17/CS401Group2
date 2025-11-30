@@ -1,3 +1,4 @@
 username51,password67,150
 newUser,password,50
 thisismyusername,password1,50
+newusername,newpassword,50
