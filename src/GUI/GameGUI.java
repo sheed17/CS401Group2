@@ -4,6 +4,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import src.Client.BlackjackClient;
+import src.Server.MessageEnum;
 
 public class GameGUI
 {
@@ -14,8 +15,17 @@ public class GameGUI
 	public GameGUI(BlackjackClient client)
 	{
 		this.client = client;
-		GameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		GameFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		GameFrame.setLocationRelativeTo(null);
+		GameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+	        public void windowClosing(WindowEvent e) {
+	            if (confirmLogout()) {
+	                // optional: client.logout() or client.disconnect();
+	                GameFrame.dispose();
+	                System.exit(0); // close app completely
+	            }
+	        }
+	    });
 	}
 	
 	public void logInGUI()
@@ -122,8 +132,66 @@ public class GameGUI
 	
 	public void mainMenu()
 	{
-		JOptionPane.showMessageDialog(null, "You are now in the main Menu", 
-				"Log In Success", 
+		GameFrame.getContentPane().removeAll();
+
+	    // Build main menu panel
+	    JPanel menuPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+	    
+
+	    JButton viewProfileButton = new JButton("View Profile");
+	    JButton viewTablesButton = new JButton("View Tables");
+	    JButton logOutButton = new JButton("Log Out");
+
+	    viewProfileButton.addActionListener(e -> viewProfile());
+	    viewTablesButton.addActionListener(e -> viewTables());
+	    logOutButton.addActionListener(e -> logOut());
+
+	    menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+	    menuPanel.add(viewProfileButton);
+	    menuPanel.add(viewTablesButton);
+	    menuPanel.add(logOutButton);
+
+	    GameFrame.add(menuPanel, BorderLayout.CENTER);
+
+	    GameFrame.pack();
+	    GameFrame.setLocationRelativeTo(null); // keep it centered if you like
+	    GameFrame.revalidate();
+	    GameFrame.repaint();
+	}
+	
+	public void viewProfile()
+	{
+		JOptionPane.showMessageDialog(null, "You have pressed View Profile", 
+				"Main Menu", 
 				JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void viewTables()
+	{
+		JOptionPane.showMessageDialog(null, "You have pressed View Tables", 
+				"Main Menu", 
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void logOut()
+	{		
+		if (confirmLogout()) {
+			String serverResponse = client.logOut();
+			JOptionPane.showMessageDialog(null, serverResponse);
+	        GameFrame.dispose();   // close the GUI window
+	        System.exit(0);        // terminate the app
+	    }
+	}
+	
+	private boolean confirmLogout() {
+	    int option = JOptionPane.showConfirmDialog(
+	            GameFrame,
+	            "Are you sure you want to log out?",
+	            "Confirm Logout",
+	            JOptionPane.YES_NO_OPTION,
+	            JOptionPane.QUESTION_MESSAGE
+	    );
+	    return option == JOptionPane.YES_OPTION;
 	}
 }

@@ -84,8 +84,19 @@ public class BlackjackClient
 	{
 		send(new BlackjackMessage(MessageEnum.UPDATEBALANCE, "add", "150"));
 		BlackjackMessage serverResponse = receive();
-		System.out.println(serverResponse.getText());
 		// Basic example of sending a message from the client to the server
+	}
+	
+	public String logOut()
+	{
+		send(new BlackjackMessage(MessageEnum.LOGOUT, "null", "null"));
+		BlackjackMessage message = receive();
+		if (message.getStatus().equals("Success"))
+		{
+			loggedIn = false;
+			return message.getText();
+		}
+		return message.getText();
 	}
 	
 }
