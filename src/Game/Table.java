@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Table {
 
-	private static int count = 0;
+    private static int count = 0;
     private int tableId;
     private List<Player> players;
     private Dealer dealer;
@@ -18,11 +18,12 @@ public class Table {
     private boolean inGame = false;
 
     public Table() {
-    	this.tableId = ++count;
+        this.tableId = ++count;
         this.players = new ArrayList<>();
         this.dealer = new Dealer();
-        this.shoe = new Shoe(dealer);   
+        this.shoe = new Shoe(dealer);
     }
+
 
     public boolean addPlayer(Player p) {
         if (players.size() >= maxPlayers) {
@@ -41,9 +42,43 @@ public class Table {
         removePlayer(p);
     }
 
+    public boolean placeBet(Player p, int amount) {
+
+        if (!players.contains(p)) {
+            return false;
+        }
+
+        if (inGame) {
+            return false;
+        }
+
+        if (amount < minBetAmount || amount > maxBetAmount) {
+            return false;
+        }
+
+        if (p.getBalance() < amount) {
+            return false;
+        }
+
+        // Prevent stacking multiple main bets
+        if (p.getCurrentBet() >= minBetAmount) {
+            return false;
+        }
+
+        return p.bet(amount) > 0;
+    }
+
+
+
     public void startRound() {
         if (players.isEmpty()) {
         	return;
+        }
+
+        for (Player p : players) {
+            if (p.getCurrentBet() < minBetAmount) {
+                continue;
+            }
         }
 
         inGame = true;
@@ -56,10 +91,12 @@ public class Table {
         }
 
         for (Player p : players) {
-            p.hit(shoe);
-            p.hit(shoe);
+            if (p.getCurrentBet() >= minBetAmount) {
+                p.hit(shoe);
+                p.hit(shoe);
+            }
         }
-        
+
         dealer.hit(shoe);
         dealer.hit(shoe);
     }
@@ -68,15 +105,18 @@ public class Table {
         if (!inGame) {
         	return;
         }
-        
+
         dealer.playDealerHand(shoe);
         int dealerValue = dealer.getTotalCardValue();
 
         for (Player p : players) {
             int playerValue = p.getTotalCardValue();
 
-            if (playerValue > 21) {
+            if (p.getCurrentBet() < minBetAmount) {
             	continue; 
+            }
+            if (playerValue > 21) {
+            	continue;               
             }
 
             if (dealerValue > 21 || playerValue > dealerValue) {
@@ -93,11 +133,10 @@ public class Table {
         dealer.resetHand();
     }
 
-
     public Player getPlayer(int userId) {
         for (Player p : players) {
             if (p.getUserId() == userId) {
-                return p;
+            	return p;
             }
         }
         return null;
