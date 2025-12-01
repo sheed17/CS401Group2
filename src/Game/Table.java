@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Table {
 
+	private static int count = 0;
     private int tableId;
     private List<Player> players;
     private Dealer dealer;
@@ -16,16 +17,13 @@ public class Table {
 
     private boolean inGame = false;
 
-    public Table(int tableId) {
-        this.tableId = tableId;
+    public Table() {
+    	this.tableId = ++count;
         this.players = new ArrayList<>();
         this.dealer = new Dealer();
         this.shoe = new Shoe(dealer);   
     }
 
-    // ------------------------------------------------
-    // PLAYER MANAGEMENT
-    // ------------------------------------------------
     public boolean addPlayer(Player p) {
         if (players.size() >= maxPlayers) {
         	return false;
@@ -117,5 +115,7 @@ public class Table {
         return players;
     }
 }
+
+
 
 
