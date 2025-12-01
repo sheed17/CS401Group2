@@ -16,10 +16,8 @@ public class PlayerTest {
 
     @Before
     public void setUp() throws Exception {
-        // This is the same file name used inside Player
         userDataFile = new File("UserData.txt");
 
-        // Write a fresh file before each test
         writeUserData(
             "alice,1234,100\n" +
             "bob,abcd,200\n"
@@ -35,10 +33,11 @@ public class PlayerTest {
     
     @Test
     public void testLoginSuccess() {
-        Player p = new Player("x", "y"); // constructor values don't matter; login will overwrite
+        Player p = new Player("alice", "1234"); 
         boolean result = p.logIn("alice", "1234");
 
         assertTrue("Login should succeed for valid credentials", result);
+        assertEquals("alice", p.getUsername());
         assertEquals(100, p.getBalance());
     }
 
