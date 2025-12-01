@@ -1,2 +1,3 @@
 alice,1234,100
 bob,abcd,200
+luis,password,50
