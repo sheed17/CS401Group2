@@ -21,7 +21,7 @@ public class Player {
 	private int[] handTotals = new int[4];
 	private Table currentTable;
 	
-	Player(String username, String password){
+	public Player(String username, String password){
 		this.userId = count++;
 		this.username = username;
 		this.password =  password;
@@ -340,7 +340,9 @@ public class Player {
         int aces2 = 0;
         for (int i = 0; i < handSizes[newIndex]; i++) {
             Card c = hands[newIndex][i];
-            if (c == null) continue;
+            if (c == null) {
+            	continue;
+            }
             total2 += c.getCardValue();
             if (c.getRank() == Rank.Ace) {
             	aces2 = aces2 + 1;

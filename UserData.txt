@@ -1,4 +1,2 @@
-username51,password67,150
-newUser,password,50
-thisismyusername,password1,50
-newusername,newpassword,50
+alice,1234,100
+bob,abcd,200
