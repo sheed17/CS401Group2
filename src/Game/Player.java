@@ -320,7 +320,9 @@ public class Player {
             	continue;
             }
             total1 += c.getCardValue();
-            if (c.getRank() == Rank.Ace) aces1++;
+            if (c.getRank() == Rank.Ace) {
+            	aces1 = aces1 + 1;
+            }
         }
         while (aces1 > 0 && total1 + 10 <= 21) {
             total1 = total1 + 10;
@@ -403,7 +405,7 @@ public class Player {
 	
 	@Override
 	public String toString() {
-	    return "Player ID: " + userId + ", Username: " + username + ", Balance: " + balance + ", Active Hand Value: " + totalCardValue + ", Num Hands: " + numHands;
+	    return "Player ID: " + userId + ", Username: " + username + ", Balance: " + balance;
 	}
 
 }
