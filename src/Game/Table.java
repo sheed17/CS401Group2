@@ -1,139 +1,104 @@
 package src.Game;
-import java.util.Arrays;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Table {
 
     private int tableId;
-    private Player[] players = new Player[7];
+    private List<Player> players;
     private Dealer dealer;
     private Shoe shoe;
 
     private final int minBetAmount = 5;
     private final int maxBetAmount = 50000;
-    private int currentPlayers = 0;
     private final int maxPlayers = 7;
 
     private boolean inGame = false;
 
     public Table(int tableId) {
         this.tableId = tableId;
+        this.players = new ArrayList<>();
         this.dealer = new Dealer();
-        this.shoe = new Shoe(6);
+        this.shoe = new Shoe(dealer);   
     }
 
+    // ------------------------------------------------
+    // PLAYER MANAGEMENT
+    // ------------------------------------------------
     public boolean addPlayer(Player p) {
-        if (currentPlayers >= maxPlayers){
-          return false;
+        if (players.size() >= maxPlayers) {
+        	return false;
         }
 
-        for (int i = 0; i < players.length; i++) {
-            if (players[i] == null) {
-                players[i] = p;
-                currentPlayers++;
-                return true;
-            }
-        }
-        return false;
+        players.add(p);
+        return true;
     }
 
     public void removePlayer(Player p) {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i] == p) {
-                players[i] = null;
-                currentPlayers--;
-                break;
-            }
-        }
+        players.remove(p);
     }
 
-    //handling player disconnect right now i just removed but later will handle logic wanted to get the skeleton of the table class out so far
     public void handlePlayerDisconnect(Player p) {
         removePlayer(p);
-        // server will handle notifying client
     }
 
     public void startRound() {
-        if (currentPlayers == 0) return;
+        if (players.isEmpty()) {
+        	return;
+        }
 
         inGame = true;
 
-        // Reset dealer
         dealer.resetHand();
 
-        // Reset all players' hands for new round
         for (Player p : players) {
-            if (p != null) {
-                p.setNumHands(1);
-                p.setTotalCardValue(0);
-            }
+            p.setNumHands(1);
+            p.setTotalCardValue(0);
         }
 
-        // Deal 2 cards to each active player
         for (Player p : players) {
-            if (p != null) {
-                p.hit(shoe);
-                p.hit(shoe);
-            }
+            p.hit(shoe);
+            p.hit(shoe);
         }
-
-        // Deal dealer hand
+        
         dealer.hit(shoe);
         dealer.hit(shoe);
     }
 
     public void endRound() {
         if (!inGame) {
-          return;
+        	return;
         }
-
+        
         dealer.playDealerHand(shoe);
-
-        // Compare dealer hand vs players
-        int dealerTotal = dealer.getTotalCardValue();
+        int dealerValue = dealer.getTotalCardValue();
 
         for (Player p : players) {
-            if (p == null) continue;
+            int playerValue = p.getTotalCardValue();
 
-            // Every hand the player has
-            for (int h = 0; h < p.getNumHands(); h++) {
+            if (playerValue > 21) {
+            	continue; 
+            }
 
-                int playerValue = p.getTotalCardValue();
-
-                if (playerValue > 21) {
-                    // player bust, loses automatically
-                    continue;
-                }
-
-                if (dealerTotal > 21 || playerValue > dealerTotal) {
-                    // Player wins
-                    // assuming 1:1 payout
-                    int winnings = p.getCurrentBet() * 2;
-                    p.setBalance(p.getBalance() + winnings);
-                }
+            if (dealerValue > 21 || playerValue > dealerValue) {
+                int winnings = p.getCurrentBet() * 2;
+                p.setBalance(p.getBalance() + winnings);
             }
         }
 
         resetTable();
     }
 
-    
-    public void checkHands(Player[] players) {
-        for (Player p : players) {
-            if (p != null && p.getTotalCardValue() == 21) {
-                //need to add the blackjack logic
-            }
-        }
-    }
-
-
     public void resetTable() {
         inGame = false;
         dealer.resetHand();
     }
 
+
     public Player getPlayer(int userId) {
         for (Player p : players) {
-            if (p != null && p.getUserId() == userId) {
+            if (p.getUserId() == userId) {
                 return p;
             }
         }
@@ -141,10 +106,16 @@ public class Table {
     }
 
     public int getCurrentPlayers() {
-        return currentPlayers;
+        return players.size();
     }
 
     public int getTableId() {
         return tableId;
     }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
 }
+
+
