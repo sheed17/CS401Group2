@@ -44,10 +44,11 @@ public class Dealer {
             if (c.getRank() == Rank.Ace) aces++;
         }
 
-        while (value > 21 && aces > 0) {
-            value -= 10; 
-            aces--;
-        }
+		// Upgrade some aces from 1 to 11
+		while (aces > 0 && value + 10 <= 21) {
+    		value += 10;
+    		aces--;
+		}
 
         return value;
     }
@@ -76,4 +77,5 @@ public class Dealer {
         return "Dealer Hand: " + hand + " | Total: " + totalCardValue;
     }
 }
+
 
