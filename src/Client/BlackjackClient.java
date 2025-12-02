@@ -55,7 +55,8 @@ public class BlackjackClient
                 password
         );
         BlackjackMessage resp = sendRequest(req);
-        if (resp == null) return "Failure";
+        if (resp == null) 
+        	return "Failure";
         // GUI checks "Failure" / otherwise success
         return resp.getStatus();
     }
@@ -68,7 +69,8 @@ public class BlackjackClient
                 password
         );
         BlackjackMessage resp = sendRequest(req);
-        if (resp == null) return "Failure";
+        if (resp == null) 
+        	return "Failure";
         return resp.getStatus();
     }
 
@@ -81,7 +83,8 @@ public class BlackjackClient
                 ""
         );
         BlackjackMessage resp = sendRequest(req);
-        if (resp == null) return "";
+        if (resp == null) 
+        	return "";
         return resp.getText();
     }
 
@@ -94,7 +97,8 @@ public class BlackjackClient
                 ""
         );
         BlackjackMessage resp = sendRequest(req);
-        if (resp == null) return "Connection error.";
+        if (resp == null) 
+        	return "Connection error.";
         // Text contains game state string
         return resp.getText();
     }
@@ -107,7 +111,8 @@ public class BlackjackClient
                 Integer.toString(amount)
         );
         BlackjackMessage resp = sendRequest(req);
-        if (resp == null) return "Connection error.";
+        if (resp == null) 
+        	return "Connection error.";
         return resp.getText();
     }
 
@@ -119,7 +124,8 @@ public class BlackjackClient
                 ""
         );
         BlackjackMessage resp = sendRequest(req);
-        if (resp == null) return "Connection error.";
+        if (resp == null) 
+        	return "Connection error.";
         return resp.getText();
     }
 
@@ -214,7 +220,7 @@ public class BlackjackClient
     {
         try 
         {
-            BlackjackClient client = new BlackjackClient("192.168.1.130", 52904);
+            BlackjackClient client = new BlackjackClient("134.154.23.179", 52904);
             src.GUI.GameGUI gui = new src.GUI.GameGUI(client);
             gui.logInGUI();
         } 
