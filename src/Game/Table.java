@@ -59,7 +59,7 @@ public class Table {
         }
         if (p.getBalance() < amount) {
             return false;
-        }s
+        }
         if (p.getCurrentBet() >= minBetAmount) {
             return false;
         }
