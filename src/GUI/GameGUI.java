@@ -454,7 +454,7 @@ public class GameGUI {
         turnTimer = new Timer(1000, e -> {
             timeRemaining--;
             if (timeRemaining <= 0) {
-                timerLabel.setText("Your turn timed out (server will auto-stand).");
+                timerLabel.setText("Your turn timed out.");
                 stopTurnTimer();
             } else {
                 timerLabel.setText("Your turn: " + timeRemaining + "s");
