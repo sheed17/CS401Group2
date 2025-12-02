@@ -3,3 +3,4 @@ bob,abcdef,2000
 luis,password123,500
 alexis,password12345,9999
 kodie,software,23756
+rasheed,1234567,999999
