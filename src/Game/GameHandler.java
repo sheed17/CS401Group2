@@ -88,7 +88,7 @@ public class GameHandler {
     public synchronized void stand(Player p) {
         if (!roundInProgress) return;
         if (p.getCurrentBet() <= 0) return;
-        if (p != currentTurnPlayer) return; // Not this player's turn
+        if (p != currentTurnPlayer) return; 
 
         p.stand();
         markPlayerDoneAndAdvance(p);
@@ -97,12 +97,17 @@ public class GameHandler {
     public synchronized void doubleDown(Player p) {
         if (!roundInProgress) return;
         if (p.getCurrentBet() <= 0) return;
-        if (p != currentTurnPlayer) return; // Not this player's turn
+        if (p != currentTurnPlayer) return;
 
-        p.doubleDown(p.getCurrentBet(), table.getShoe());
-        // By rules, doubling ends your turn
-        markPlayerDoneAndAdvance(p);
+        boolean ok = p.doubleDown(p.getCurrentBet(), table.getShoe());
+        if (ok) {
+            // end turn
+            markPlayerDoneAndAdvance(p);
+        } else {
+            // player can still hit/stand.
+        }
     }
+
 
     public synchronized void split(Player p) {
         if (!roundInProgress) return;

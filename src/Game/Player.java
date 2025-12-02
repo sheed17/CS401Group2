@@ -39,7 +39,7 @@ public class Player {
         for (int i = 0; i < hands.length; i++) {
             handSizes[i] = 0;
             totalHands[i] = 0;
-            handBets[i] = 0; 
+            //handBets[i] = 0; 
             for (int j = 0; j < hands[i].length; j++) {
                 hands[i][j] = null;
             }
@@ -248,30 +248,31 @@ public class Player {
     }
 
     // checks if it can bet the same amount and doubles it or stands 
-    public void doubleDown(int betAmount, Shoe shoe) {
-
+    public boolean doubleDown(int betAmount, Shoe shoe) {
+        // must have exactly 2 cards on this hand
         if (handSizes[activeHandNumber] != 2) {
-            return; 
+            return false;
         }
 
         int baseHandBet = handBets[activeHandNumber];
         if (baseHandBet <= 0) {
-            return;
+            return false;
         }
 
         int extraBet = baseHandBet;
-
         if (extraBet > balance) {
-            return; 
+            return false;
         }
+
         int placed = bet(extraBet);
         if (placed <= 0) {
-            return; 
+            return false;
         }
 
         hit(shoe);
-        stand();
+        return true;
     }
+
 
     // split the hand if it has 2 hands and check the bets
     public void split(Shoe shoe) {
@@ -299,7 +300,7 @@ public class Player {
         }
 
         balance = balance - betForHand;
-        currentBet = currentBet - betForHand;
+        currentBet = currentBet + betForHand;
 
         int newIndex = numHands;
         numHands =  numHands + 1;
