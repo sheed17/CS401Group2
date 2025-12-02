@@ -430,19 +430,24 @@ public class GameGUI {
     }
 
     private void updateTurnTimer(boolean roundInProgress, boolean myTurn, String currentTurnPlayer) {
-        stopTurnTimer();
-
         if (!roundInProgress || currentTurnPlayer == null || currentTurnPlayer.equals("None")) {
+            stopTurnTimer();
             timerLabel.setText("No active turn.");
             return;
         }
 
+        // countdown of your turn
         if (!myTurn) {
+            stopTurnTimer();
             timerLabel.setText("Waiting for " + currentTurnPlayer + "...");
             return;
         }
 
-        // It's your turn => start 10-second visual timer
+        if (turnTimer != null) {
+            return;
+        }
+
+        // 10 second timer
         timeRemaining = 10;
         timerLabel.setText("Your turn: " + timeRemaining + "s");
 
@@ -457,6 +462,7 @@ public class GameGUI {
         });
         turnTimer.start();
     }
+
 
     public void logOut() {
         if (confirmLogout()) {
