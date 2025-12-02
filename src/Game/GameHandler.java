@@ -78,7 +78,7 @@ public class GameHandler {
 
         // Auto-finish player if bust or 21+
         if (p.getTotalCardValue() >= 21) {
-            markPlayerDoneAndAdvance(p);
+        	finishOrAdvance(p);
         } else {
             // still player's turn, reset timeout
             scheduleTurnTimeout(p);
@@ -91,7 +91,7 @@ public class GameHandler {
         if (p != currentTurnPlayer) return; 
 
         p.stand();
-        markPlayerDoneAndAdvance(p);
+        finishOrAdvance(p);
     }
 
     public synchronized void doubleDown(Player p) {
@@ -101,10 +101,9 @@ public class GameHandler {
 
         boolean ok = p.doubleDown(p.getCurrentBet(), table.getShoe());
         if (ok) {
-            // end turn
-            markPlayerDoneAndAdvance(p);
+        	finishOrAdvance(p);
         } else {
-            // player can still hit/stand.
+        	scheduleTurnTimeout(p);
         }
     }
 
@@ -295,6 +294,17 @@ public class GameHandler {
         return null;
     }
 
+    private void finishOrAdvance(Player p) {
+        int currentHand = p.getActiveHandNumber();
+        int numHands    = p.getNumHands();
+
+        if (currentHand + 1 < numHands) {
+            p.setActiveHandNumber(currentHand + 1);
+            scheduleTurnTimeout(p);
+        } else {
+            markPlayerDoneAndAdvance(p);
+        }
+    }
 
 
     public synchronized String buildState(Player p) {

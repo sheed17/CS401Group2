@@ -449,6 +449,15 @@ public class Player {
     	return lastResult; 
     }
 
+    public int getActiveHandNumber() {
+        return activeHandNumber;
+    }
+
+    public void setActiveHandNumber(int activeHandNumber) {
+        this.activeHandNumber = activeHandNumber;
+    }
+
+    
     @Override
     public String toString() {
         return "Player ID: " + userId + ", Username: " + username + ", Balance: " + balance;
