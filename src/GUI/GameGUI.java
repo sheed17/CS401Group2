@@ -1,6 +1,10 @@
 package src.GUI;
 
 import java.awt.*;
+import javax.swing.JTextPane;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.Timer;
@@ -160,6 +164,15 @@ public class GameGUI {
     public void mainMenu() {
         GameFrame.getContentPane().removeAll();
 
+        ImageIcon icon = new ImageIcon("bj.jpg"); 
+        Image scaled = icon.getImage().getScaledInstance(400, 250, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(scaled);
+        
+        
+        JLabel imageLabel = new JLabel(icon);
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        
         JPanel menuPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -174,8 +187,11 @@ public class GameGUI {
         menuPanel.add(viewProfileButton);
         menuPanel.add(joinTableButton);
         menuPanel.add(logOutButton);
-
+        
+        GameFrame.setLayout(new BorderLayout());
+        GameFrame.add(imageLabel, BorderLayout.NORTH);
         GameFrame.add(menuPanel, BorderLayout.CENTER);
+        
         GameFrame.pack();
         GameFrame.setLocationRelativeTo(null);
         GameFrame.revalidate();
@@ -221,7 +237,7 @@ public class GameGUI {
     public void showGameTable() {
         GameFrame.getContentPane().removeAll();
 
-        JTextArea gameState = new JTextArea(18, 55);
+        JTextPane gameState = new JTextPane();
         gameState.setEditable(false);
         gameState.setFont(new Font("Monospaced", Font.PLAIN, 15));
         gameState.setMargin(new Insets(10, 10, 10, 10));
@@ -326,8 +342,19 @@ public class GameGUI {
         topPanel.add(timerLabel, BorderLayout.CENTER);
         topPanel.add(controls, BorderLayout.SOUTH);
 
-        GameFrame.add(topPanel, BorderLayout.NORTH);
-        GameFrame.add(new JScrollPane(gameState), BorderLayout.CENTER);
+        ImageIcon tableIcon = new ImageIcon("tableIm.jpg");
+        Image scaled = tableIcon.getImage().getScaledInstance(350, 180, Image.SCALE_SMOOTH);
+        tableIcon = new ImageIcon(scaled);
+
+        JLabel tableImageLabel = new JLabel(tableIcon);
+        tableImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+
+   
+        GameFrame.setLayout(new BorderLayout());
+        GameFrame.add(topPanel, BorderLayout.NORTH);        
+        GameFrame.add(tableImageLabel, BorderLayout.CENTER); 
+        GameFrame.add(new JScrollPane(gameState), BorderLayout.SOUTH); 
 
         GameFrame.pack();
         GameFrame.setLocationRelativeTo(null);
@@ -377,9 +404,15 @@ public class GameGUI {
         new Thread(task).start();
     }
 
-    private void updateGameState(JTextArea gameState, String text) {
+    private void updateGameState(JTextPane gameState, String text) {
         SwingUtilities.invokeLater(() -> {
-            gameState.setText(text != null ? text : "");
+        	gameState.setText(text != null ? text : "");
+
+        	StyledDocument doc = gameState.getStyledDocument();
+        	SimpleAttributeSet center = new SimpleAttributeSet();
+        	StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+        	doc.setParagraphAttributes(0, doc.getLength(), center, false);
+
 
             // Simple color coding if your gameState text ever includes these words.
             if (text != null && text.contains("YOU WIN")) {

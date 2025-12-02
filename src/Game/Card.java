@@ -20,6 +20,26 @@ public class Card {
 
     @Override
     public String toString() {
-        return rank + " of " + suit;
+
+        String rankStr;
+
+        switch (rank) {
+            case Ace:   rankStr = "A"; break;
+            case Jack:  rankStr = "J"; break;
+            case Queen: rankStr = "Q"; break;
+            case King:  rankStr = "K"; break;
+            default:    rankStr = String.valueOf(getCardValue());
+        }
+
+        String suitStr = "";
+        switch (suit) {
+            case Spades:   suitStr = "♠"; break;
+            case Hearts:   suitStr = "♥"; break;
+            case Diamonds: suitStr = "♦"; break;
+            case Clubs:    suitStr = "♣"; break;
+        }
+
+        return rankStr + "(" + suitStr + ")";
     }
+
 }
