@@ -1,3 +1,5 @@
-alice,1234,100
-bob,abcd,200
-luis,password,50
+alice,1234567,10000
+bob,abcdef,2000
+luis,password123,500
+alexis,password12345,9999
+kodie,software,23756
