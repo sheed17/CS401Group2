@@ -1,7 +1,6 @@
 package src.Game;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Table {
 
@@ -24,10 +23,16 @@ public class Table {
         this.shoe = new Shoe(dealer);
     }
 
-
     public boolean addPlayer(Player p) {
         if (players.size() >= maxPlayers) {
-        	return false;
+            return false;
+        }
+
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getUsername().equals(p.getUsername())) {
+                players.remove(i);
+                break;
+            }
         }
 
         players.add(p);
@@ -43,90 +48,94 @@ public class Table {
     }
 
     public boolean placeBet(Player p, int amount) {
-
         if (!players.contains(p)) {
             return false;
         }
-
         if (inGame) {
             return false;
         }
-
         if (amount < minBetAmount || amount > maxBetAmount) {
             return false;
         }
-
         if (p.getBalance() < amount) {
             return false;
-        }
-
-        // Prevent stacking multiple main bets
+        }s
         if (p.getCurrentBet() >= minBetAmount) {
             return false;
         }
-
         return p.bet(amount) > 0;
     }
 
-
-
     public void startRound() {
-        if (players.isEmpty()) {
-        	return;
-        }
-
-        for (Player p : players) {
-            if (p.getCurrentBet() < minBetAmount) {
-                continue;
-            }
-        }
+    	dealer.resetHand();
+        if (players.isEmpty()) return;
 
         inGame = true;
-
         dealer.resetHand();
 
         for (Player p : players) {
-            p.setNumHands(1);
-            p.setTotalCardValue(0);
+            if (p.getCurrentBet() < minBetAmount) {
+                p.bet(minBetAmount);
+            }
         }
 
         for (Player p : players) {
-            if (p.getCurrentBet() >= minBetAmount) {
-                p.hit(shoe);
-                p.hit(shoe);
-            }
+            p.resetForNewRound();
+        }
+
+        for (Player p : players) {
+            p.hit(shoe);
+            p.hit(shoe);
         }
 
         dealer.hit(shoe);
         dealer.hit(shoe);
     }
 
+
     public void endRound() {
-        if (!inGame) {
-        	return;
-        }
+        if (!inGame) return;
 
         dealer.playDealerHand(shoe);
         int dealerValue = dealer.getTotalCardValue();
 
         for (Player p : players) {
+            int bet = p.getCurrentBet();
             int playerValue = p.getTotalCardValue();
 
-            if (p.getCurrentBet() < minBetAmount) {
-            	continue; 
-            }
-            if (playerValue > 21) {
-            	continue;               
+            String result;
+
+            if (bet < minBetAmount) {
+                p.setCurrentBet(0);
+                continue;
             }
 
-            if (dealerValue > 21 || playerValue > dealerValue) {
-                int winnings = p.getCurrentBet() * 2;
-                p.setBalance(p.getBalance() + winnings);
+            if (playerValue > 21) {
+                result = "BUST — You lose.";
+            } else if (dealerValue > 21) {
+                p.setBalance(p.getBalance() + bet * 2);
+                result = "Dealer busts — YOU WIN!";
+            } else if (playerValue > dealerValue) {
+                p.setBalance(p.getBalance() + bet * 2);
+                result = "YOU WIN!";
+            } else if (playerValue == dealerValue) {
+                p.setBalance(p.getBalance() + bet);
+                result = "Push — No one wins.";
+            } else {
+                result = "YOU LOSE.";
+            }
+            p.setLastResult(result);
+
+            p.setCurrentBet(0);
+
+            for (int i = 0; i < p.getHandBets().length; i++) {
+                p.getHandBets()[i] = 0;
             }
         }
 
-        resetTable();
+        inGame = false;
     }
+
 
     public void resetTable() {
         inGame = false;
@@ -136,7 +145,7 @@ public class Table {
     public Player getPlayer(int userId) {
         for (Player p : players) {
             if (p.getUserId() == userId) {
-            	return p;
+                return p;
             }
         }
         return null;
@@ -153,8 +162,23 @@ public class Table {
     public List<Player> getPlayers() {
         return players;
     }
-}
 
+    public Shoe getShoe() {
+        return shoe;
+    }
+
+    public Dealer getDealer() {
+        return dealer;
+    }
+
+    public int getMinBetAmount() {
+        return minBetAmount;
+    }
+
+    public boolean isInGame() {
+        return inGame;
+    }
+}
 
 
 
