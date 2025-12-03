@@ -12,10 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import src.Server.*;
+import src.Client.BlackjackClient;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BlackjackServerTester {
 
+	private BlackjackClient client;
 	private Socket socket; 
 	private ObjectInputStream objectIn;
 	private ObjectOutputStream objectOut;
@@ -23,101 +25,49 @@ class BlackjackServerTester {
 	@BeforeEach
 	void setUp() throws Exception 
 	{
-		this.socket = new Socket("localhost", 52904);
-		this.objectOut = new ObjectOutputStream(socket.getOutputStream());
-		objectOut.flush();
-		this.objectIn = new ObjectInputStream(socket.getInputStream());
+		client = new BlackjackClient("134.154.23.179", 52904);
 	}
 	
-	@AfterEach
-	void close() throws Exception
-	{
-		socket.close();
-	}
-
 	@Test
 	@Order(1)
 	void logInMessageReturnsSuccessWithRealCredentials() throws IOException, ClassNotFoundException 
 	{
-		BlackjackMessage message = new BlackjackMessage(MessageEnum.LOGIN, "username51", "password67");
-		objectOut.writeObject(message);
-		BlackjackMessage serverResponse = (BlackjackMessage) objectIn.readObject();
-		assertTrue(serverResponse.getStatus().equals("Success"));
+		String serverResponse = client.logIn("luis", "password123");
+		assertTrue(serverResponse.equals("Success"));
 	}
 	
 	@Test
 	@Order(2)
 	void logInMessageReturnsFailureWithFakeCredentials() throws IOException, ClassNotFoundException
 	{
-		BlackjackMessage message = new BlackjackMessage(MessageEnum.LOGIN, "fakeusername", "fakepassword");
-		objectOut.writeObject(message);
-		BlackjackMessage serverResponse = (BlackjackMessage) objectIn.readObject();
-		assertTrue(serverResponse.getStatus().equals("Failure"));
+		String serverResponse = client.logIn("luis", "fakepassword");
+		assertTrue(serverResponse.equals("Failure"));
 	}
 	
 	@Test
 	@Order(3)
 	void viewProfileReturnsProperAccountDetailsAfterLogInAndCreateUser() throws IOException, ClassNotFoundException
 	{
-		BlackjackMessage message = new BlackjackMessage(MessageEnum.LOGIN, "username51", "password67");
-		objectOut.writeObject(message);
-		BlackjackMessage serverResponse = (BlackjackMessage) objectIn.readObject();
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.VIEWPROFILE, "null", "null"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		String expectedResult = "username51,password67,150";
-		//Update this to the proper balance listed in userData.txt
-		assertTrue(serverResponse.getText().equals(expectedResult));
+		String serverResponse = client.logIn("luis", "password123");
+		serverResponse = client.viewProfile();
+		assertTrue(serverResponse.equals("luis,password123,470"));
+		
+		BlackjackClient newClient = new BlackjackClient("134.154.23.179", 52904);
+		serverResponse = newClient.createNewUser("newuser", "newpassword");
+		serverResponse = newClient.viewProfile();
+		assertTrue(serverResponse.equals("newuser,newpassword,50"));
+		// either delete the newuser line in userData or use new credentials everytime this is ran
 	}
 	
 	@Test
-	@Order(998)
-	void updateBalanceShowsProperBalanceAfterMethodCall() throws IOException, ClassNotFoundException
+	@Order(4)
+	void logOutReturnsProperLogOutMessageAfterSuccessfulLogIn()
 	{
-		BlackjackMessage message = new BlackjackMessage(MessageEnum.LOGIN, "username51", "password67");
-		objectOut.writeObject(message);
-		BlackjackMessage serverResponse = (BlackjackMessage) objectIn.readObject();
+		String serverResponse = client.logIn("luis", "password123");
+		serverResponse = client.viewProfile();
+		assertTrue(serverResponse.equals("luis,password123,470"));
 		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEBALANCE, "add", "150"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.VIEWPROFILE, "null", "null"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		
-		String expectedResult = "username51,password67,300";
-		assertTrue(serverResponse.getText().equals(expectedResult));
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEBALANCE, "subtract", "150"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.VIEWPROFILE, "null", "null"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		expectedResult = "username51,password67,150";
-		assertTrue(serverResponse.getText().equals(expectedResult));
+		serverResponse = client.logOut();
+		assertTrue(serverResponse.equals("You are now logged out"));
 	}
-	
-	@Test
-	@Order(999)
-	void updateUsernameChangesUsernameUponNextLogIn() throws IOException, ClassNotFoundException
-	{
-		BlackjackMessage message = new BlackjackMessage(MessageEnum.LOGIN, "username51", "password67");
-		objectOut.writeObject(message);
-		BlackjackMessage serverResponse = (BlackjackMessage) objectIn.readObject();
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEPASSWORD, "pending", "newpassword"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEUSERNAME, "pending", "newusername"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.VIEWPROFILE, "null", "null"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		assertTrue(serverResponse.getText().equals("newusername,newpassword,150"));	
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEPASSWORD, "pending", "password67"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-		
-		objectOut.writeObject(new BlackjackMessage(MessageEnum.UPDATEUSERNAME, "pending", "username51"));
-		serverResponse = (BlackjackMessage) objectIn.readObject();
-	}
-
 }

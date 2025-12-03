@@ -21,7 +21,7 @@ public class BlackjackServer
     public static void main(String[] args) throws IOException 
     {
         loadUserData();
-        InetAddress bindAddress = InetAddress.getByName("134.154.54.0");
+        InetAddress bindAddress = InetAddress.getByName("134.154.23.179");
         // MAKE SURE TO CHANGE TO THE IP OF WHOEVER IS HOSTING THE SERVER FOR PRESENTATION
 
         try (ServerSocket listener = new ServerSocket(52904, 50, bindAddress)) {

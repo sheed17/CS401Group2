@@ -1,8 +1,8 @@
 alice,1234567,10000
 bob,abcdef,2000
-luis,password123,500
-alexis,password12345,9274
-kodie,software,16846
-rasheed,1234567,1000004
+luis,password123,470
+alexis,password12345,9784
+kodie,software,23756
+rasheed,1234567,999999
 alexis2,password12345,40
-alexis12345,password123456,50
+newuser,newpassword,50

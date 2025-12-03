@@ -47,9 +47,6 @@ public class GameGUI {
         });
     }
 
-    // ==========================================================
-    //                     LOGIN SCREENS
-    // ==========================================================
 
     public void logInGUI() {
         String[] options = {"Log In", "Create Account"};
@@ -157,9 +154,7 @@ public class GameGUI {
         GameFrame.setVisible(true);
     }
 
-    // ==========================================================
-    //                     MAIN MENU
-    // ==========================================================
+
 
     public void mainMenu() {
         GameFrame.getContentPane().removeAll();
@@ -230,9 +225,7 @@ public class GameGUI {
         });
     }
 
-    // ==========================================================
-    //                     BLACKJACK TABLE
-    // ==========================================================
+
 
     public void showGameTable() {
         GameFrame.getContentPane().removeAll();
@@ -396,10 +389,6 @@ public class GameGUI {
         }
     }
 
-    // ==========================================================
-    //                     UTILITY
-    // ==========================================================
-
     private void runAsync(Runnable task) {
         new Thread(task).start();
     }
@@ -414,7 +403,6 @@ public class GameGUI {
         	doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
 
-            // Simple color coding if your gameState text ever includes these words.
             if (text != null && text.contains("YOU WIN")) {
                 gameState.setForeground(new Color(0, 150, 0));
             } else if (text != null &&
@@ -426,7 +414,6 @@ public class GameGUI {
                 gameState.setForeground(Color.BLACK);
             }
 
-            // --- TIMER + TURN LOGIC ---
 
             if (timerLabel == null || text == null) {
                 return;
@@ -440,7 +427,6 @@ public class GameGUI {
 
             updateTurnTimer(roundInProgress, myTurn, currentTurn);
 
-            // Optional: enable/disable action buttons based on turn
             if (roundInProgress && myTurn) {
                 if (hitBtn != null) hitBtn.setEnabled(true);
                 if (standBtn != null) standBtn.setEnabled(true);

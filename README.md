@@ -1,2 +1,1 @@
-# CS401Group2
-all of our stuff
+CS401_BlackjackProjectSRS (MAIN).pdf
