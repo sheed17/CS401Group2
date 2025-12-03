@@ -1,8 +1,2 @@
-alice,1234567,10000
-bob,abcdef,2000
-luis,password123,470
-alexis,password12345,9784
-kodie,software,23756
-rasheed,1234567,999999
-alexis2,password12345,40
-newuser,newpassword,50
+alice,1234,250
+bob,abcd,200
