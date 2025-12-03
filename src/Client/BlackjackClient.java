@@ -214,7 +214,7 @@ public class BlackjackClient
     {
         try 
         {
-            BlackjackClient client = new BlackjackClient("192.168.1.130", 52904);
+            BlackjackClient client = new BlackjackClient("134.154.54.0", 52904);
             src.GUI.GameGUI gui = new src.GUI.GameGUI(client);
             gui.logInGUI();
         } 
